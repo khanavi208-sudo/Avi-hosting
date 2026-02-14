@@ -1,0 +1,53 @@
+<h2>TG PYTHON BOT HOSTING</h2>
+
+<input type="file" id="f">
+<button onclick="upload()">Upload File</button>
+
+<pre id="info"></pre>
+
+<button onclick="run()">Run Bot</button>
+<button onclick="stop()">Stop Bot</button>
+
+<pre id="log"></pre>
+
+<script>
+let fileName="";
+
+function upload(){
+ let fd=new FormData();
+ fd.append("file",f.files[0]);
+ fetch("/upload",{method:"POST",body:fd})
+ .then(r=>r.json())
+ .then(d=>{
+   if(d.error){alert(d.error);return;}
+   fileName=d.name;
+   info.textContent=
+   "Name: "+d.name+
+   "\nSize: "+d.size+
+   "\nLast Edited: "+d.edited+
+   "\nType: Python";
+ });
+}
+
+function run(){
+ fetch("/run",{method:"POST",
+ headers:{"Content-Type":"application/json"},
+ body:JSON.stringify({file:fileName})
+ })
+ .then(r=>r.json())
+ .then(d=>{
+   log.textContent=
+   "Webhook sent: "+d.webhook+
+   "\nBot run: "+d.running+
+   "\nStarted: "+d.start;
+ });
+}
+
+function stop(){
+ fetch("/stop",{method:"POST"})
+ .then(r=>r.json())
+ .then(d=>{
+   log.textContent+="\nBot stopped: "+d.stopped;
+ });
+}
+</script>
